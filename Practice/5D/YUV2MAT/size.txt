@@ -1,0 +1,1 @@
+https://www.researchgate.net/post/How_to_increase_the_maximum_array_size_allowed_in_Matlab#:~:text=Most%20recent%20answer&text=Preferences>>Workspace>>%20Matlab,)>>%20set%20it..

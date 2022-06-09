@@ -1,0 +1,307 @@
+\documentclass[journal]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Near Real-Time Light Field Video Compression using 5-D Approximate DCT\\
+%{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and should not be used}
+%\thanks{Identify applicable funding agency here. If none, delete this.}
+}
+\author{Sritharan~Braveenan, Chamira U. S. Edussooriya~\IEEEmembership{Member,~IEEE,} Chamith Wijenayake~\IEEEmembership{Member,~IEEE,} and Arjuna~Madanayake~\IEEEmembership{Member,~IEEE}% <-this % stops a space	
+%\thanks{This research has been financially supported in part by the Senate Research Committee, University of Moratuwa grant SRC/LT/2020/08.}%
+\thanks{S. Braveenan and C. U. S. Edussooriya are with the Department of Electronic and Telecommunication Engineering, University of Moratuwa, Moratuwa 10400, Sri Lanka (e-mail: \{160073F, chamira\}@uom.lk).}% <-this % stops a space
+\thanks{C. Wijenayake is with the School of Information Technology and Electrical Engineering, University of Queensland, Brisbane, QLD 4072, Australia (e-mails: c.wijenayake@uq.edu.au).}
+\thanks{A. Madanayake is with the Department of Electrical and Computer Engineering, Florida International University, Miami, FL, USA (e-mail: amadanay@fiu.edu).}}
+
+\maketitle
+
+\begin{abstract}
+Five-dimensional (5-D) light field videos (LFVs) capture spatial, angular and temporal variations of light rays emanating from scenes. This leads to significantly large amount of data compared to conventional three-dimensional videos (3-D) , which capture only the spatial and temporal variations of light rays. In this paper, we propose an LFV compression technique using low-complexity 5-D approximate discrete-cosine transforms (ADCTs). In order to further reduce the computational complexity, our technique exploits the partial separability of LFV representations and apply two-dimensional (2-D) ADCT for sub-aperture images of LFV frames with intra-view and inter-view configurations. Furthermore, we apply one-dimensional ADCT with respect to the temporal dimension. We evaluate the performance of the proposed LFV compression technique using several 5-D ADCT algorithms, and the exact 5-D DCT. The experimental results obtained with LFVs confirm that the proposed LFV compression technique provides more than \(150\) times reduction in the data volume with near lossless fidelity with peak-signal-to-noise ratio greater than $40$ dB and structural similarity index greater than $0.9$. Furthermore, the proposed LFV compression technique achieves compression in $150$ seconds for an LFV of size $8\times8\times 160\times 240\times 24$, i.e., $6.25$ s per LFV frame, with an ADCT requiring only $14$ additions for a $8$-point ADCT, confirming near real-time processing. 
+\end{abstract}
+
+\begin{IEEEkeywords}
+Light field videos, compression, approximate discrete cosine transform, low complexity.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Light rays emanating from a scene is completely defined by the seven-dimensional plenoptic function~\cite{Adelson1991}, as shown in Fig~\ref{fig:pleno}, which models light rays at every possible location in the three-dimensional (3-D) space \((x,y,z)\), from every possible direction \((\theta,\phi)\), at every wavelengths \(\lambda\), and at every time \(t\). Five-dimensional (5-D) light field video (LFV) is a simplified form of the seven-dimensional plenoptic function derived with two assumptions: intensity of a light ray does not change along its direction of propagation and  the wavelength is represented by red, green and blue (RGB) color channels~\cite{Zhan2004,Shum2003}. With the first assumption, we can eliminate one space dimension, typically $z$, and with the second assumption, we can eliminate the wavelength. Therefore, an LFV corresponding to one color channel is a 5-D function of $x,y,\theta,\phi$ and $t$. In general, the spatial and angular dimensions $x,y,\theta$, and $\phi$ are parameterized using two parallel planes~\cite{Lev1996}, as shown in Fig~\ref{fig:para}, where $(x,y)$ plane is called the camera plane and $(u,v)$ plane is called the image plane. We call a two-dimensional (2-D) image and 3-D video corresponding to a given spatial sample $(x_0,y_0)$ as a sub-aperture image (SAI) and a sub-aperture video (SAV), respectively.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/pleno.eps}
+\caption{The 7D plenoptic function}
+\label{fig:pleno}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.3\textwidth]{images/para.eps}
+\caption{Two-plane parameterization for LFV frame}
+\label{fig:para}
+\end{center}
+\end{figure}
+
+An LFV captures spatial, angular and temporal variation of light rays in contrast to a conventional 3-D video, which captures only the spatial and temporal variations of light rays. This richness of information of LFVs lead to novel applications such as post-capture refocusing~\cite{Ng2005a,Dan2015,Jay2020}, depth estimation~\cite{Kin2021} and depth-velocity filtering~\cite{Edu2015a,Edu2017b} which are not possible 3-D videos. Furthermore, LFVs are especially useful in augmented reality and virtual reality applications\cite{Wang2014}. On the other hand, the data associated with an LFV is significantly larger compared to 3-D videos, e.g., one color channel of an LFv of size $8\times8\times 434\times 625\times 16\times$ requires $2.17$ GB, with $8$-bits per pixel. This limits the potential of real-time processing of LFVs especially with mobile, edge or web applications where storage is limited or data rate is not sufficient for real-time communication. Therefore, in order to fully exploit the capabilities enabled by LFVs, efficient LFV compression techniques are required to be developed. Even though, a number of compression techniques have been developed for four-dimensional light fields~\cite{Conti2020, Liyanage2020}, their straight- forward extension to 5-D LFVs may not results the most efficient compression techniques for LFVs. 
+
+In this paper, we propose a low-complexity LFV lossy compression technique using 5-D approximate discrete-cosine transforms (ADCTs). To the best of author's knowledge, our techniques is the \emph{first compression technique proposed for LFVs}. We employed low-complexity ADCTs developed for type-2 discrete cosine transform (DCT), which has excellent energy-compaction property and is widely used in data compression applications~\cite{Oppenheim2009}. These ADCTs have significantly lower computational complexity compared to the exact DCT~\cite{Bayer2012,Potluri2014}. In order to further reduce the computational complexity, our technique exploits the partial separability of LFV representations. In particular, we consider blocks of size $8\times8\times8\times8\times8$ and apply 2-D $8\times8$-point ADCT for SAIs of LFV frames with intra-view and inter-view configurations separately. Denoting a discrete-domain LFV as $l(n_x,n_y,n_u,n_v,n_t)$, where $n_x,n_y,n_u,n_v$, and $n_t$ are the discrete domains corresponding to continuous domains $x,y,u,v$ and $t$, respectively (with uniform sampling), we apply 2-D ADCT with respect to $(n_u,n_v)$ in the intra-view configuration (i.e., within SAIs) whereas we apply 2-D ADCT with respect to $(n_x,n_y)$ in the inter-view configuration (i.e., across SAIs). Finally, we apply one-dimensional $8$-point ADCT with respect to the temporal dimension. We evaluate the performance of the proposed LFV compression technique using several ADCT algorithms, and the exact 5-D DCT. The experimental results obtained with LFVs confirm that the proposed LFV compression technique provides more than $150$ times reduction in the data volume with near lossless fidelity with peak-signal-to-noise ratio greater than $40$ dB and structural similarity index greater than $0.9$. Furthermore, the proposed LFV compression technique, with an unoptimzed MATLAB implementation, achieves compression in $150$ seconds for an LFV of size $8\times8\times 160\times 240\times 24$ with an ADCT requiring only $14$ additions for a $8$-point ADCT~\cite{Potluri2014}. That is $6.25$ s per LFV frame, which confirms near real-time processing.
+
+The rest of the paper is organized as follows. In Sec.~\ref{sec:rw}, we discuss the related work. We present a review of DCT and ADCT in Sec.~\ref{sec:rwdct}. In Sec.~\ref{sec:propmethd}, we present the proposed LFV compression technique in detail. In Sec.~\ref{sec:res}, we present experimental results, and finally, in Sec.~\ref{sec:con_fw}, we present conclusion and future work.
+
+\section{Related Work}
+\label{sec:rw}
+\subsection{4-D Light Field Compression}
+2-D Discrete Cosine Transform (2-D DCT) is widely used transform for image and video compression notably in JPEG \cite{Pennebaker1992}, MPEG-1 \cite{Roma2007}, H.264 \cite{Wiegand2003}, which has good energy compaction for images. 4-D Light Field compression is inspired from 2-D image compression, instead of 2-D blocks LF is partitioned into small size 4-D blocks and applies 4-D DCT directly on it. This approach recently used in the JPEG Pleno Verification Model for lenslet Light Field compression \cite{Pleno2020}. But to handle 4-D block, high computational complexity is needed, which is not suitable for real-time applications. To reduce complexity, using partial separability, apply cascade of two 2-D DCT on 4-D blocks\cite{Liyanage2020}. Another approach is arranging SAIs of a LF along a third dimension, create a 3-D body and apply 3-D DCT on it\cite{Mehanna2013}. This gives better compression than image-based compression but not suitable for 5-D LFV, where actual temporal dimension involves, using spatial dimension as temporal dimension limits the performance. Blocking artifacts is major drawback of DCT and 2D-DWT which is applied in JPEG2000\cite{Rabbani2002}  works efficiently in reducing the blocking artifacts, same as 4D-DWT uses in LF compression.  Karhunen Loève Transform (KLT) is another transform for Light Field compression where Vector Quantization (VQ) scheme uses to cluster different Micro Images (MI) into a representative set of vectors which are used to coded with KLT. This gives better PSNR than DCT based for the lower bit rates \cite{Jang2005}. Graph Fourier Transform (GFT) is recently proposed transform for Light Field compression \cite{Elias2018} where graph based representation uses to model color, disparity or other geometry information from Light Field. GFT achieves reduction of up to \(21.92\%\) in number of transform coefficients when compared to DCT-based compression, while providing better or equal mean squared reconstruction error. However complexity wise DCT is better than other transforms mentioned.
+
+\subsection{Approximate Discrete Cosine Transform}
+Floating point operation reduction is an important aspect for real time compression \cite{Potluri2014} than accuracy, which increases circuit complexity and power consumption. To omit this in compression, approximate transforms are introduced in literature, notably 8-point approximate DCT \cite{Bouguezel2008,Bouguezel2011,Cintra2011,Bayer2012,Potluri2014} and 16-point approximate DCT \cite{Bouguezel2010}. Generally approximate DCT matrices can be written as matrix multiplication of diagonal matrix which contain only irrational numbers and low complexity matrix which contains only powers of two \cite{Potluri2014}. Bouguezel \cite{Bouguezel2008} first introduces low complexity 8 point approximate DCT in 2008 which matrix does matrix multiplication with \(8\times8\) block in 18 additions and 2 shifts but for exact 8 point DCT, 64 multiplications and 56 additions are needed. After this, several approximate transform algorithms are developed and arithmetic complexity of those are summarized in Table\ref{table:ArithmeticComplexity}. Low complexity matrix of BAS2011\cite{Bouguezel2011} does not have \(1/2\) to omit right shift but CB2011\cite{Cintra2011} only has 0 and 1 to omit both shifts. Both Modified CB2011\cite{Bayer2012} and PMC2014\cite{Potluri2014} ACDT algorithm arithmetic complexities are same but PMC2014 gives better SAI quality.
+
+\begin{table}
+\begin{center}
+\caption{Arithmetic Complexity}
+\label{table:ArithmeticComplexity}
+\begin{tabular}{|c c c c c|} 
+ \hline
+ DCT method & Mult & Add & Shifts & Total \\ [0.5ex] 
+ \hline\hline
+ Exact DCT & 64 & 56 & 0 & 120\\
+ \hline
+ BAS2008\cite{Bouguezel2008} & 0 & 18 & 2 & 20\\
+ \hline
+ BAS2011\cite{Bouguezel2011} with a = 0 & 0 & 16 & 0 & 16\\
+ \hline
+ BAS2011\cite{Bouguezel2011} with a = 1 & 0 & 18 & 0 & 18\\
+ \hline
+ BAS2011\cite{Bouguezel2011} with a = 1 & 0 & 18 & 2 & 20\\
+ \hline
+ CB2011\cite{Cintra2011} & 0 & 22 & 0 & 22\\
+ \hline 
+ Modified CB2011\cite{Bayer2012} & 0 & 14 & 0 & 14\\
+ \hline
+ PMC2014\cite{Potluri2014} & 0 & 14 & 0 & 14\\
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Review of DCT and ADCT}
+\label{sec:rwdct}
+\subsection{1-D DCT}
+Let \textbf{x} be \(N \times 1\) vector, whose entries are given by \(x[n]\) for \(n = 1,2,...N\) and \textbf{y} is 1-D DCT transformation of \textbf{x}, whose entries are given by \cite{Oppenheim2009}:
+\begin{equation}
+\label{eq4}
+y[k] = a_N[k] \cdot \sum_{n=0}^{N-1} x[n] \cdot \cos{\left(\frac{\pi k(2n+1)}{2N}\right)},    
+\end{equation}
+where 
+\[
+    a_N[k] = \frac{1}{\sqrt{N}}
+\begin{cases}
+    1,& k_i = 0\\
+    \sqrt{2},& k_i = 1,2,..,N-1
+\end{cases}
+\]
+To solve equations efficiently, equation \eqref{eq3} can be written as:
+\begin{equation}
+\label{eq5}
+Y = C_N \cdot X,    
+\end{equation}
+\(C_N\) entries are given by:
+\[C_N[k,n] = a_N[k] \cdot \cos{\left(\frac{\pi k(2n+1)}{2N}\right)}\]
+To reduce arithmetic complexity, instead of ideal DCT matrix \(C_N\), approximate DCT matrix \(\hat{C}_N\) is used, which can be written as\cite{Bouguezel2008,Bouguezel2011,Cintra2011,Bayer2012,Potluri2014}:
+\begin{equation}
+\label{eq3}
+\hat{C}_N  = D_N \cdot T_N, 
+\end{equation}
+where \(D_N\) is diagonal matrix which consists only irrational numbers and \(T_N\) is low complexity matrix which consists powers of 2.
+
+\subsection{2-D DCT}
+Let \(X\) be \(N \times N\) matrix, whose entries are given by \(x[n_1,n_2]\) for \(n_1,n_2 = 1,2,...N\) and \(Y\) is 2-D DCT transformation of \(X\), whose entries are given by \cite{Cho1991}:
+\begin{equation}
+\begin{split}
+\label{eq1}
+y[k_1,k_2] = a_N[k_1] \cdot a_N[k_2] \cdot \sum_{n_1=0}^{N-1} \sum_{n_2=0}^{N-1} x[n_1,n_2] \cdot \\ 
+\cos{\left(\frac{\pi k_1(2n_1+1)}{2N}\right)} \cdot \cos{\left(\frac{\pi k_2(2n_2+1)}{2N}\right)},
+\end{split}
+\end{equation}
+where 
+\[
+    a_N[k_i] = \frac{1}{\sqrt{N}}
+\begin{cases}
+    1,& k_i = 0\\
+    \sqrt{2},& k_i = 1,2,..,N-1
+\end{cases}
+\]
+To solve equations efficiently, equation \eqref{eq1} can be written as\cite{Potluri2014}:
+\begin{equation}
+\label{eq2}
+Y = C_N \cdot X \cdot C_N^T,  
+\end{equation}
+where \(C_N\) entries are given by:
+\[C_N[k,n] = a_N[k] \cdot \cos{\left(\frac{\pi k(2n+1)}{2N}\right)}\]
+In approximate DCT matrix \(\hat{C}_N\) used instead of ideal DCT matrix \(C_N\) same as above. 
+
+\section{Proposed 5-D ADCT Based LFV Compression}
+\label{sec:propmethd}
+Overview of Proposed 5-D ADCT Based LFV Compression is explained in Fig.~\ref{fig:lfvarchi}, where input to our system is Light Field Video \(l(n_x,n_y,n_u,n_v,n_t)\), which size is \((N_x,N_y,N_u,N_v,N_t)\), indicates there are \(N_t\) number of frames in Light Field Video and each LFV frame has \(N_x \times N_y\) Sub Aperture Images (SAI) where size of each Sub Aperture Image (SAI) is \(N_u \times N_v\) pixels. Compression has been done in each channel separately and YUV format is preferable format. 
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/LFV architecture.pdf}
+\caption{Overview of the proposed 5-D ADCT based LFV compression}
+\label{fig:lfvarchi}
+\end{center}
+\end{figure}
+
+Our first step of the system is intra-view encoding, where intra-views of the LF are transformed into DCT coefficients by partitioning all SAIs of each LFV frame into blocks of \(8 \times 8\) and applying 2-D ADCT. This intra-view ADCT operation is repeated for all \(8 \times 8\) blocks in all SAIs of each LFV frame and \(N_x \times N_y \times N_u/8 \times N_v/8 \times N_t\) no of operations needed to complete intra-view ADCT transformation on entire Light Field Video. This leads to create mixed domain 5-D signal \(L_1(n_x,n_y,k_u,k_v,n_t)\).
+
+Inter-view encoding is second step of system, where we create \(N_x\times N_y\) view points blocks from \(L_1(n_x,n_y,k_u,k_v,n_t)\) by changing pixel point across SAIs of each LFV frame, partition that into \(8 \times 8\) blocks and apply 2-D ADCT on it. This inter-view ADCT operation is repeated for all \(8\times8\) blocks across all SAIs of each LFV frame and \(N_x/8\times N_y/8\times N_u\times N_v\times N_t\) no of operations needed to complete inter-view ADCT transformation on entire Light Field Video. This leads to create mixed domain 5-D signal \(L_2(k_x,k_y,k_u,k_v,n_t)\).
+
+Next step of the system is named as temporal encoding, where we take points along time axis from \(L_2(k_x,k_y,k_u,k_v,n_t)\) for each LFV view point and pixel point, partition that into dimension of \(8 \times 1\) vectors and apply 1-D ADCT on it. This temporal ADCT operation is repeated for all \(8 \times 1\) vectors along time axis for particular view point and pixel point and \(N_x \times N_y \times N_u \times N_v \times N_t/8\) no of operations are needed to complete temporal ADCT transformation on entire Light Field Video. This creates fully transformed 5-D signal \(L(k_x,k_y,k_u,k_v,k_t)\).
+
+Final step in our proposed 5-D LFV compression system is quantization, where Light Field Video is partitioned into \(8 \times 8 \times 8 \times 8 \times 8\) blocks and apply \(8 \times 8 \times 8 \times 8 \times 8\) constant value matrix on it, which is expressed as \cite{Pennebaker1992}:
+\begin{equation}
+\label{eq6}
+L_q(k) = round \left( \frac{L(k)}{Q(k)} \right) \cdot Q(k),
+\end{equation}
+where \(Q(k)\) is 5-D constant value matrix and both division and multiplication are done in element wise. After quantization, coefficients higher than threshold value (value in \(Q(k)\)) are only retained in \(L_q(k)\) and this leads to lossy Light Field Video compression.
+
+\section{Experimental Results}
+\label{sec:res}
+To measure performance of Light Field Video compression, three Light Field Videos were used : Car, David, Toy. All three Light Field Videos were made from \(15\times15\) multiple camera array. For our processing \(8\times8\) views were taken and all SAIs are in YUV420 format. Table. \ref{table:DatasetsSpecification} summarizes size, minimum and maximum value of each channel data set.
+
+\begin{table}
+\begin{center}
+\caption{Data Set Specification}
+\label{table:DatasetsSpecification}
+\begin{tabular}{|c c c c c|} 
+ \hline
+ Dataset & Channel & Size & Min & Max \\ [0.5ex] 
+ \hline\hline
+ Car & U & \(8\times8\times176\times256\times24\) & 25 & 181\\
+ \hline
+ & V & \(8\times8\times176\times256\times24\) & 80 & 193\\
+ \hline
+ & Y & \(8\times8\times352\times512\times24\) & 3 & 255\\
+ \hline\hline
+ David & U & \(8\times8\times160\times240\times24\) & 49 & 122\\
+ \hline
+ & V & \(8\times8\times160\times240\times24\) & 107 & 151\\
+ \hline 
+ & Y & \(8\times8\times320\times480\times24\) & 43 & 229\\
+ \hline\hline
+ Toy & U & \(8\times8\times160\times240\times24\) & 3 & 160 \\ 
+ \hline
+ & V & \(8\times8\times160\times240\times24\) & 50 & 224 \\ 
+ \hline
+ & Y & \(8\times8\times320\times480\times24\) & 12 & 255\\ [0.5ex] 
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Compression quality is measured by using Peak Signal to Noise Ratio (PSNR) and Structural Similarity Index for Measuring image quality (SSIM) of each SAI of decompressed Light Field Video with original Light Field Video \cite{Jpeg2019}. The PSNR between the original SAI A and the reconstructed SAI A’ is computed as follows \cite{Jpeg2019}:
+\begin{equation}
+\label{eq7}
+PSNR = 10\log_{10}\left( \frac{2^n - 1}{MSE} \right),
+\end{equation}
+Where n is no of bits in SAI and MSE between the two M×N SAIs A and A’ is given by:
+\[MSE = \left(\frac{1}{MN} \right)\sum_{i=0}^{M-1} \sum_{j=0}^{N-1}(A(i,j)-A'(i,j))^2\]
+The SSIM between the original SAI A and the reconstructed SAI A’ is computed as follows \cite{Wang2004}:
+\begin{equation}
+\label{eq8}
+SSIM = \frac{(2\mu_A\mu_{A'}+C_1)(2\sigma_{AA'}+C_2)}{(\mu_A^2+\mu_{A'}^2+C_1)(\sigma_A^2+\sigma_{A'}^2+C_2)},
+\end{equation}
+Where \(\mu_A,\mu_{A'},\sigma_A,\sigma_{A'},,\sigma_{AA'}\) are local means, standard deviations, and cross covariance for SAIs A, A'. The PSNR and SSIM for Light Field Video are computed by averaging the PSNRs and SSIMs of SAIs individually. The final \(SSIM_{YCbCr}\) of entire Light Field Video is computed using only the luminance component (Y) \cite{Jpeg2019} and final \(PSNR_{YCbCr}\) of entire Light Field Video is computed by using \(PSNR_Y, PSNR_{Cb}\) and \(PSNR_{Cr}\) as follows \cite{Jpeg2019}:
+\begin{equation}
+\label{eq9}
+PSNR_{YCbCr} = \frac{6PSNR_Y + PSNR_{Cb} + PSNR_{Cr}}{8}    
+\end{equation}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=\textwidth]{results/ana.eps}
+\caption{(a) PSNR vs Compression rate (b) SSIM vs Compression rate for 5-D ADCT, intra-view + temporal only and inter-view + temporal only}
+\label{fig:ana}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=\textwidth]{results/psnrvsbpp.eps}
+\caption{PSNR vs Compression rate on different ADCT algorithms Exact DCT, BAS-2008 \cite{Bouguezel2008}, BAS-2011 for parameter 0 \cite{Bouguezel2011}, BAS-2011 for parameter 1 \cite{Bouguezel2011}, CB-2011 \cite{Cintra2011}, Modified CB-2011 \cite{Bayer2012} and PMC 2014 \cite{Potluri2014} in 5-D domain for data set (a) Car (b) David (c) Toy.}
+\label{fig:bppvspsnr}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=\textwidth]{results/ssimvsbpp.eps}
+\caption{SSIM vs Compression rate on different ADCT algorithms Exact DCT, BAS-2008 \cite{Bouguezel2008}, BAS-2011 for parameter 0 \cite{Bouguezel2011}, BAS-2011 for parameter 1 \cite{Bouguezel2011}, CB-2011 \cite{Cintra2011}, Modified CB-2011 \cite{Bayer2012} and PMC 2014 \cite{Potluri2014} in 5-D domain for data set (a) Car (b) David (c) Toy.}
+\label{fig:bppvsssim}
+\end{center}
+\end{figure*}
+
+\begin{table}
+\begin{center}
+\caption{Quantization}
+\label{table:qval}
+\begin{tabular}{|c|c|c|c|c|} 
+ \hline
+ \shortstack{\\Quantization \\ value} & \shortstack{\\Compression \\ rate [bpp]}  & PSNR [dB] & SSIM & \shortstack{\\Energy \\ retained} \\ [0.5ex] 
+ \hline\hline
+ 1 & 1.33 & 62.32 & 1 & 1\\
+ \hline
+ 3 & 0.47 & 55.26 & 0.99 & 1\\
+ \hline
+ 5 & 0.28 & 53.53 & 0.99 & 1\\
+ \hline
+ 7 & 0.2 & 52.41 & 0.99 & 1\\
+ \hline
+ 10 & 0.14 & 51.26 & 0.99 & 0.99\\
+ \hline 
+ 15 & 0.09 & 50.06 & 0.98 & 0.99\\
+ \hline
+ 25 & 0.06 & 48.76 & 0.98 & 0.98 \\ 
+ \hline
+ 35 & 0.04 & 48.06 & 0.97 & 0.97 \\ 
+ \hline
+ 50 & 0.04 & 47.44 & 0.97 & 0.96\\ 
+ \hline
+ 80 & 0.03 & 46.67 & 0.97 & 0.95\\
+ \hline 
+ 100 & 0.03 & 46.31 & 0.97 & 0.95\\
+ \hline
+ 120 & 0.03 & 45.97 & 0.96 & 0.95 \\ 
+ \hline
+ 150 & 0.03 & 45.65 & 0.96 & 0.94 \\ 
+ \hline
+ 180 & 0.03 & 45.25 & 0.96 & 0.94\\  
+ \hline
+ 200 & 0.03 & 44.99 & 0.96 & 0.94\\ [0.5ex] 
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+The proposed 5-D ADCT LFV compression attempts to completely exploit the redundancy in both intra-view and inter-view of any type of LFV. In Fig.\ref{fig:ana}(a)-(b) we demonstrate this by comparing the proposed 5-D ADCT based compression with intra-view and temporal only 3-D ADCT-based compression and inter-view and temporal only 3-D ADCT-based compression. As expected, the 5-D ADCT based compression shows best performance in both PSNR and SSIM as it completely utilizes redundancy in LFVs. In Fig. \ref{fig:bppvspsnr}(a)-(c), PSNR is plotted against compression rate in bits per pixel for 6 different ADCT matrices and exact DCT. When decreasing compression rate, PSNR is also decreasing and at one point it is converging. All 7 PSNR vs compression rate graphs are nearly same for all 3 data sets. For data set Car and Toy, PSNR converges near to 41dB and compression rate starts at near to 0.6 out of 1. For data set David, PSNR converges near to 45dB and compression rate starts at near to 0.3 out of 1. As mentioned in Table \ref{table:DatasetsSpecification}, data set David has small range values than other data sets. This can be reason for that particular data set getting better PSNR values for small compression rate values. 
+
+In Fig. \ref{fig:bppvsssim}(a)-(c), SSIM is plotted against compression rate in bits per pixel for 6 different ADCT matrices and exact DCT. All 7 SSIM vs compression rate  graphs are not exactly same for all 3 data sets. From these, assumption can be taken as final outputs will be differed when using different ADCT matrices. Here none of the values are less than 0.88 out of 1. From these, we can confirm that more than \(88\%\) percentage of information can be retained while reconstructing compressed LFV. Table \ref{table:qval} explains when changing value in constant quantization matrix how compression rate, PSNR, SSIM and energy retained are changing. For this experiment Y channel of data set David is used. When you are increasing quantization value, at one point retained energy rate starts to decrease but compression rate, PSNR and SSIM converge.
+
+\section{Conclusion and Future Work}
+\label{sec:con_fw}
+Light Field Videos widely used in different applications but due to large amount of data, limits the potential of real-time processing of LFVs. A reduced complexity compression approach is proposed for five dimensional LFVs using multiplier-less 5-D ADCT. The proposed system employs a multiplier-less 8-point ADCT block which has recently appeared in literature and requires only 14 additions. To reduce complexity, by using partial separability, 5-D compression is done in following order: 2-D intra view compression, 2-D inter view compression and temporal compression. Then do quantization on it by dividing Light Field Video into \(8\times8\times8\times8\times8\) size blocks and obtain compressed Light Field Video. Here Light Field Video compression done for all three channels separately. Effectiveness of the proposed 5-D ADCT based compression is verified with software simulation comparisons against 2-D inter-view \(+\) 1-D temporal only and 2-D intra-view \(+\) 1-D temporal only ADCT compression achieved using PSNR and SSIM metrics. To check compression quality, SSIM and PSNR is calculated between original Light Field Video and reconstructed Light Field Video for different approximate 8 point 2-D DCT algorithms which are already published in literature. Based on our results we could get minimum 43 dB average PSNR and minimum 0.89 average SSIM. These indicate our compression algorithm is efficient and we do not loose that much information while compressing. Future work includes 5-D Light Field Video compression implementation in FPGA device and 5-D Light Field Video reconstruction algorithm development using prediction modelling. 
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{export,IEEEabrv,Ref_LFV,export1}
+
+
+\end{document}

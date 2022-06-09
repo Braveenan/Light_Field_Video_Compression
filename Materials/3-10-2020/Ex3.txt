@@ -1,0 +1,19 @@
+Percentage of zeros for camera256
+Quality level[10 40 90] = [95.01 87.25 63.87]
+PSNR for camera256
+Quality level[10 40 90] = [26.24 30.77 39.97]
+
+Percentage of zeros for boat512
+Quality level[10 40 90] = [95.36 88.49 68.78]
+PSNR for boat512
+Quality level[10 40 90] = [28.86 33.88 41.03]
+
+Percentage of zeros for goldhill512
+Quality level[10 40 90] = [95.64 86.87 61.76]
+PSNR for goldhill512
+Quality level[10 40 90] = [28.65 32.91 39.35]
+
+Percentage of zeros for peppers512
+Quality level[10 40 90] = [96.00 90.61 67.27]
+PSNR for peppers512
+Quality level[10 40 90] = [30.12 34.27 39.17]

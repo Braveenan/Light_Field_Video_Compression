@@ -1,0 +1,9 @@
+Modofied CB 2011 DCT for LFVV_toy.mat
+Compression Time: 18.37
+No of Avg coeficients set to zero: 32318.65
+Percentage of Retined Energy: 1.00
+Compressed LF size: 1.04 MB
+bpp: 0.15 
+Reconstruction Time: 19.74
+PSNR value: 47.52
+PSNR Time: 0.24

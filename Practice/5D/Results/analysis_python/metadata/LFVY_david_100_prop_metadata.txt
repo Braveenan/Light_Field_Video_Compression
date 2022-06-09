@@ -1,0 +1,9 @@
+Proposed DCT for LFVY_david.mat
+Compression Time: 64.79
+No of Avg coeficients set to zero: 32752.28
+Percentage of Retined Energy: 0.94
+Compressed LF size: 0.95 MB
+bpp: 0.03 
+Reconstruction Time: 80.97
+PSNR value: 44.91
+PSNR Time: 93.69

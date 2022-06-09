@@ -1,0 +1,9 @@
+BAS 2008 DCT for LFVU_car.mat
+Compression Time: 16.08
+No of Avg coeficients set to zero: 9770.44
+Percentage of Retined Energy: 1.00
+Compressed LF size: 19.36 MB
+bpp: 2.35 
+Reconstruction Time: 14.97
+PSNR value: 61.94
+PSNR Time: 0.25

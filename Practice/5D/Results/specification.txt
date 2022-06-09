@@ -1,0 +1,45 @@
+Name: LFVU_car
+Size: 8,8,176,256,24
+Maximum: 181
+Minimum: 25
+Retained coefficients: 69206016
+Name: LFVU_david
+Size: 8,8,160,240,24
+Maximum: 122
+Minimum: 49
+Retained coefficients: 58982400
+Name: LFVU_toy
+Size: 8,8,160,240,24
+Maximum: 160
+Minimum: 3
+Retained coefficients: 58982400
+Name: LFVV_car
+Size: 8,8,176,256,24
+Maximum: 193
+Minimum: 80
+Retained coefficients: 69206016
+Name: LFVV_david
+Size: 8,8,160,240,24
+Maximum: 151
+Minimum: 107
+Retained coefficients: 58982400
+Name: LFVV_toy
+Size: 8,8,160,240,24
+Maximum: 224
+Minimum: 50
+Retained coefficients: 58982400
+Name: LFVY_car
+Size: 8,8,352,512,24
+Maximum: 255
+Minimum: 3
+Retained coefficients: 276824064
+Name: LFVY_david
+Size: 8,8,320,480,24
+Maximum: 229
+Minimum: 43
+Retained coefficients: 235929600
+Name: LFVY_toy
+Size: 8,8,320,480,24
+Maximum: 255
+Minimum: 12
+Retained coefficients: 235929600

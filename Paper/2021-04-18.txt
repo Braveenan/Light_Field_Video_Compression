@@ -1,0 +1,101 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Light Field Video Compression using 5-D Approximate DCT\\
+%{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and should not be used}
+%\thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} S. Braveenan}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+
+\end{IEEEkeywords}
+
+\section{Introduction}
+ 
+
+\section{Related Work In LFV Compression}
+
+
+\section{Proposed 5-D ADCT Based LFV Compression}
+Input to the proposed 5-D ADCT based Light Field Video Compression system is Light Field Video \(l(n)\), Here \(n \equiv (n_x,n_y,n_u,n_v,n_t) \in \mathbb{N}^5 \) denotes 5-D discrete spatial domain, \(n_x, n_y\) denotes point in camera plane, \(n_u, n_v\) denotes point in image plane and \(n_t\) denotes point in time axis. Based on standard two plane parameterization, size of Light Field Video is assumed as \((N_x,N_y,N_u,N_v,N_t)\). This size indicates there are \(N_x \times N_y\) SAIs, size of each SAI is \(N_u \times N_v\) pixels and \(N_t\) indicates number of frames in Light Field Video. Compression has been done in each channel separately.
+
+First step is partitioning all SAIs of particular time into \(8 \times 8\) blocks and applying Normalized 2-D DCT-2 on it. Let \(X\) be extracted \(8 \times 8\) block, whose entries are given by \(x[n_1,n_2]\) for \(n_1,n_2 = 1,2,...8\). 2-D DCT transformation of \(X\) is \(Y\), whose entries are given by:
+\begin{multline*}
+y[k_1,k_2] = a_N[k_1] \cdot a_N[k_2] \cdot \sum_{n_1=0}^{N-1} \sum_{n_2=0}^{N-1} x[n_1,n_2] \cdot \\ 
+\cos{\left(\frac{\pi k_1(2n_1+1)}{2N}\right)} \cdot \cos{\left(\frac{\pi k_2(2n_2+1)}{2N}\right)}
+\end{multline*}
+where 
+\[
+    a_N[k] = \frac{1}{\sqrt{N}}
+\begin{cases}
+    1,& k_i = 0\\
+    \sqrt{2},& k_i = 1,2,..,N-1
+\end{cases}
+\]
+Here N = 8.
+To solve equations efficiently, we can express this as:
+\[Y = C_N \cdot X \cdot C_N^T \]
+\(C_N\) entries are given by:
+\[C_N[k,n] = a_N[k] \cdot \cos{\left(\frac{\pi k(2n+1)}{2N}\right)}\]
+To achieve both null multiplier complexity and reduce adder complexity, instead of ideal DCT matrix \(C_N\), we use approximate DCT matrix \(\hat{C}_N\), which can be written as \(\hat{C}_N  = D_N \cdot T_N\). Here \(D_N\) is diagonal matrix with irrational numbers. This ADCT operation is repeated for all \(8 \times 8\) blocks in all SAIs for particular time. \(N_x \times N_y \times N_u/8 \times N_v/8 \times N_t\) no of operations are needed to complete intra-view ADCT transformation on entire Light Field Video and leads to create mixed domain 5-D signal \(L_1(n_x,n_y,k_u,k_v,n_t)\).
+
+Next creating \(N_x \times N_y\) view points blocks from \(L_1(n_x,n_y,k_u,k_v,n_t)\) by changing pixel point across SAIs of particular time. Then partition that into \(8 \times 8\) blocks and apply Normalized 2-D DCT-2 on it. As mentioned earlier, To reduce complexity use Approximate DCT matrix \(\hat{C}_N\).This ADCT operation is repeated for all \(8 \times 8\) blocks across all SAIs for particular time. \(N_x/8 \times N_y/8 \times N_u \times N_v \times N_t\) no of operations are needed to complete inter-view ADCT transformation on entire Light Field Video and leads to create mixed domain 5-D signal \(L_2(k_x,k_y,k_u,k_v,n_t)\).
+
+Next take points along time axis from \(L_2(k_x,k_y,k_u,k_v,n_t)\) for particular view point and pixel point. Then break that into dimension of \(8 \times 1\) vectors and apply Normalized 1-D DCT-2 on it. Let \textbf{x} be extracted \(8 \times 1\) vector, whose entries are given by \(x[n]\) for \(n = 1,2,...8\). 1-D DCT transformation of \textbf{x} is \textbf{y}, whose entries are given by:
+\[y[k] = a_N[k] \cdot \sum_{n=0}^{N-1} x[n] \cdot \cos{\left(\frac{\pi k(2n+1)}{2N}\right)} \]
+where 
+\[
+    a_N[k] = \frac{1}{\sqrt{N}}
+\begin{cases}
+    1,& k_i = 0\\
+    \sqrt{2},& k_i = 1,2,..,N-1
+\end{cases}
+\]
+Here N = 8.
+To solve equations efficiently, we can express this as:
+\[Y = C_N \cdot X \]
+\(C_N\) entries are given by:
+\[C_N[k,n] = a_N[k] \cdot \cos{\left(\frac{\pi k(2n+1)}{2N}\right)}\]
+To reduce complexity, we can use approximate DCT matrix \(\hat{C}_N\) instead of ideal DCT matrix \(C_N\).This ADCT operation is repeated for all \(8 \times 1\) vectors along time axis for particular view point and pixel point. \(N_x \times N_y \times N_u \times N_v \times N_t/8\) no of operations are needed to complete 1-D ADCT transformation on entire Light Field Video and create fully transformed 5-D signal \(L(k_x,k_y,k_u,k_v,k_t)\).
+
+Next apply 5-D Quantization on \(L(\textbf{k})\) to discard high frequency components. \(8 \times 8 \times 8 \times 8 \times 8\) constant value matrix \(Q(k)\) is used in Quantization process. Output of Quantization process is expressed as:
+\[L_q(k) = round \left( \frac{L(k)}{Q(k)} \right) \cdot Q(k)\]
+where both the division and multiplication of the matrices are element wise. After quantization process, ADCT coefficients higher than threshold value are only retained, leading to lossy Light Field Video compression.
+
+\section{Performance Analysis}
+
+
+\section{Conclusion}
+
+
+
+\begin{thebibliography}{00}
+\bibitem{b1} U. S. Potluri, A. Madanayake, R. J. Cintra, F. M. Bayer, S. Kulasekera, and A. Edirisuriya, “Improved 8-point Approximate DCT for Image and Video Compression Requiring Only 14 Additions,” IEEE Trans. Circuits Syst. I, Reg. Papers, vol. 61, no. June, pp. 1727–1740, jun 2014.
+
+\end{thebibliography}
+
+
+\end{document}

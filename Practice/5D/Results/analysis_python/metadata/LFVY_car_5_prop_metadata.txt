@@ -1,0 +1,9 @@
+Proposed DCT for LFVY_car.mat
+Compression Time: 114.38
+No of Avg coeficients set to zero: 26818.51
+Percentage of Retined Energy: 1.00
+Compressed LF size: 25.17 MB
+bpp: 0.76 
+Reconstruction Time: 290.88
+PSNR value: 48.98
+PSNR Time: 11.39

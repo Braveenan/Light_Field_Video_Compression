@@ -1,0 +1,9 @@
+True DCT for LFVV_car.mat
+Compression Time: 51.44
+No of Avg coeficients set to zero: 32724.94
+Percentage of Retined Energy: 0.96
+Compressed LF size: 0.34 MB
+bpp: 0.04 
+Reconstruction Time: 17.66
+PSNR value: 47.66
+PSNR Time: 0.24

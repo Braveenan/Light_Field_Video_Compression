@@ -1,0 +1,9 @@
+BAS 2011 Parameter 1 DCT for LFVU_toy.mat
+Compression Time: 13.10
+No of Avg coeficients set to zero: 32709.02
+Percentage of Retined Energy: 0.99
+Compressed LF size: 0.34 MB
+bpp: 0.05 
+Reconstruction Time: 13.55
+PSNR value: 42.57
+PSNR Time: 0.18

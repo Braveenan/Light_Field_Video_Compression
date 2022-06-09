@@ -1,0 +1,9 @@
+True DCT for LFVV_toy.mat
+Compression Time: 27.06
+No of Avg coeficients set to zero: 32729.22
+Percentage of Retined Energy: 1.00
+Compressed LF size: 0.30 MB
+bpp: 0.04 
+Reconstruction Time: 26.33
+PSNR value: 43.64
+PSNR Time: 0.46

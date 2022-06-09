@@ -1,0 +1,9 @@
+BAS 2008 DCT for LFVY_david.mat
+Compression Time: 154.18
+No of Avg coeficients set to zero: 29508.85
+Percentage of Retined Energy: 1.00
+Compressed LF size: 15.10 MB
+bpp: 0.54 
+Reconstruction Time: 157.64
+PSNR value: 54.65
+PSNR Time: 3.74

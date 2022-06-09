@@ -1,0 +1,9 @@
+BAS 2008 DCT for LFVU_david.mat
+Compression Time: 36.15
+No of Avg coeficients set to zero: 32760.37
+Percentage of Retined Energy: 1.00
+Compressed LF size: 0.22 MB
+bpp: 0.03 
+Reconstruction Time: 35.81
+PSNR value: 42.13
+PSNR Time: 0.48

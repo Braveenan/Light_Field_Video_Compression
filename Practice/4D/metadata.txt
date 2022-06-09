@@ -1,0 +1,4 @@
+Now reading: E:\Semester notes\Individual Research Project\Dataset\Friends.mat
+Input LF size: 392.63 MB
+Intra Time: 5.82
+Inter Time: 12.08

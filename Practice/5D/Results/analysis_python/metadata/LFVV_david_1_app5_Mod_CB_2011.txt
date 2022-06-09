@@ -1,0 +1,9 @@
+Modofied CB 2011 DCT for LFVV_david.mat
+Compression Time: 24.81
+No of Avg coeficients set to zero: 24633.64
+Percentage of Retined Energy: 1.00
+Compressed LF size: 7.23 MB
+bpp: 1.03 
+Reconstruction Time: 36.12
+PSNR value: 62.95
+PSNR Time: 0.47

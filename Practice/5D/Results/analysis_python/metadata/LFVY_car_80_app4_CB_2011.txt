@@ -1,0 +1,9 @@
+CB 2011 DCT for LFVY_car.mat
+Compression Time: 189.29
+No of Avg coeficients set to zero: 32691.27
+Percentage of Retined Energy: 1.00
+Compressed LF size: 1.55 MB
+bpp: 0.05 
+Reconstruction Time: 643.11
+PSNR value: 41.52
+PSNR Time: 4.34
